@@ -38,7 +38,9 @@ function App() {
       {fase === 'welcome' && <Welcome onStart={iniciarCadastro} />}
       {fase === 'cadastro' && <CadastroCliente onSubmit={finalizarCadastro} />}
       {fase === 'quiz' && <Quiz onFinish={finalizarQuiz} />}
-      {fase === 'result' && <Result respostas={respostas} onRestart={reiniciar} />}
+      {fase === 'result' && cliente && (
+        <Result respostas={respostas} cliente={cliente} onRestart={reiniciar} />
+      )}
     </>
   );
 }

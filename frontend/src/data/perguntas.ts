@@ -1,6 +1,6 @@
 export type Opcao = {
   texto: string;
-  valor: number; // 0 a 2 para simplificar pontuação
+  valor: number;
 };
 
 export type Pergunta = {
@@ -46,7 +46,7 @@ export const etapas: Etapa[] = [
     perguntas: [
       {
         id: 3,
-        texto: 'Seus materiais impressos (cartões, folders, banners) têm aparência moderna?',
+        texto: 'Seus materiais impressos (cartões, folders, banners) estão atualizados?',
         opcoes: [
           { texto: 'Sim, revisamos com frequência.', valor: 2 },
           { texto: 'Foram feitos há alguns anos.', valor: 1 },
