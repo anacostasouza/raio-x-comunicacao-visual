@@ -36,10 +36,15 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       <div className="diagnostico">
         {(() => {
           const resumoEtapas = gerarResumoTexto(respostas).split('\n\n');
+          const pontuacoes = calcularPontuacaoPorEtapa(respostas); // ✅ Agora a função é chamada corretamente
+
           return etapas.map((etapa, index) => (
             <div key={etapa.id} className="etapa-diagnostico">
               <h3>{etapa.titulo}</h3>
-              <p>{'★'.repeat(calcularPontuacaoPorEtapa[index])}{'☆'.repeat(5 - calcularPontuacaoPorEtapa[index])}</p>
+              {/* ✅ Usando o array pontuacoes */}
+              <p>
+                {'★'.repeat(pontuacoes[index])}{'☆'.repeat(5 - pontuacoes[index])}
+              </p>
               <p>{resumoEtapas[index + 1]?.split('\n').slice(2).join(' ')}</p>
             </div>
           ));
@@ -47,21 +52,15 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       </div>
 
       <div>
-        <button
-          onClick={handleEnviarWhatsApp}
-        >
+        <button onClick={handleEnviarWhatsApp}>
           📲 Enviar Resultado pelo WhatsApp
         </button>
 
-        <button
-          onClick={handlePDF}
-        >
+        <button onClick={handlePDF}>
           📄 Baixar PDF do Diagnóstico
         </button>
 
-        <button
-          onClick={onRestart}
-        >
+        <button onClick={onRestart}>
           🔄 Reiniciar Diagnóstico
         </button>
       </div>
