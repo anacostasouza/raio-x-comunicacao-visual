@@ -5,11 +5,12 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "strict": true,
-    "skipLibCheck": true,         // MUITO IMPORTANTE para ignorar erros em libs de terceiros
+    "skipLibCheck": true,       
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noImplicitReturns": false
   },
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["api/**/*"],
+  "exclude": ["../backend/node_modules"]
 }
