@@ -3,16 +3,12 @@ const API_URL =
     ? 'https://backend-51b4vjdmz-ti-desenhars-projects.vercel.app/proxy'
     : 'http://localhost:4000/proxy';
 
-/**
- * Cria contato e envia mensagem via backend proxy
- */
 export async function criarContatoENotificar(
   nome: string,
   telefone: string,
   mensagem: string
 ): Promise<{ sucesso: boolean; mensagem?: string }> {
   try {
-    // Cria contato
     const resContato = await fetch(`${API_URL}/contatos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -27,7 +23,6 @@ export async function criarContatoENotificar(
 
     console.log('Contato criado:', dataContato);
 
-    // Envia mensagem
     const resMensagem = await fetch(`${API_URL}/mensagens`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

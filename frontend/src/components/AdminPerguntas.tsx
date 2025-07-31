@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { etapas as etapasData } from '../data/perguntas';
 import type { Etapa, Pergunta } from '../data/perguntas';
+import '../styles/adminPerguntas.css';
 
 const AdminPerguntas: React.FC = () => {
   const [etapas, setEtapas] = useState<Etapa[]>(etapasData);

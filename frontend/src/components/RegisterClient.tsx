@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
+import '../styles/registerClient.css';
 
 interface Props {
   onSubmit: (dados: { nome: string; telefone?: string; email?: string }) => void;
+  onBack: () => void;  
 }
 
-const CadastroCliente: React.FC<Props> = ({ onSubmit }) => {
+const CadastroCliente: React.FC<Props> = ({ onSubmit, onBack }) => {
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
 
-  // Função que aplica a máscara no valor digitado
   const mascaraTelefone = (valor: string) => {
-    // Remove tudo que não for número
     const numeros = valor.replace(/\D/g, '');
 
-    // Aplica máscara progressivamente
     if (numeros.length <= 2) {
       return `(${numeros}`;
     }
@@ -24,11 +23,9 @@ const CadastroCliente: React.FC<Props> = ({ onSubmit }) => {
     if (numeros.length <= 11) {
       return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
     }
-    // Limita a 11 dígitos (DDD + 9 dígitos)
     return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7, 11)}`;
   };
 
-  // Limpa o telefone para enviar ao backend (só números, com DDI 55 se precisar)
   const limparTelefone = (valor: string) => {
     let somenteNumeros = valor.replace(/\D/g, '');
     if (somenteNumeros.length === 11) {
@@ -70,7 +67,7 @@ const CadastroCliente: React.FC<Props> = ({ onSubmit }) => {
           type="tel"
           value={telefone}
           onChange={handleTelefoneChange}
-          maxLength={15} // Limita o tamanho da máscara
+          maxLength={15}
           placeholder="(99) 99999-9999"
         />
 
@@ -85,6 +82,14 @@ const CadastroCliente: React.FC<Props> = ({ onSubmit }) => {
         <button className="primary-button" type="submit">
           Iniciar diagnóstico
         </button>
+        
+      <button
+        type="button"
+        className="primary-button"
+        onClick={onBack}
+      >
+        Voltar
+      </button>
       </form>
     </main>
   );

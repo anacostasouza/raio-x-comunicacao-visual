@@ -7,13 +7,13 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:3000',                  // ambiente de desenvolvimento
-  'https://raio-x-desenhar.web.app',       // frontend no Firebase Hosting (produção)
+  'http://localhost:3000',                 
+  'https://raio-x-desenhar.web.app',      
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // permite ferramentas como Postman, curl, etc.
+    if (!origin) return callback(null, true); 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -36,7 +36,6 @@ app.get('/test', (req, res) => {
 });
 
 
-// Rota para criar contato
 app.post('/proxy/contatos', async (req, res) => {
   try {
     const nome = (req.body.nome || '').trim();
@@ -72,7 +71,6 @@ app.post('/proxy/contatos', async (req, res) => {
   }
 });
 
-// Rota para enviar mensagem
 app.post('/proxy/mensagens', async (req, res) => {
   try {
     const telefone = req.body.telefone;
@@ -103,7 +101,6 @@ app.post('/proxy/mensagens', async (req, res) => {
   }
 });
 
-// Exporta o Express como handler para Vercel
 export default function handler(req: VercelRequest, res: VercelResponse) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   app(req as any, res as any);

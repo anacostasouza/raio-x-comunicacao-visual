@@ -12,26 +12,33 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import type { Cliente } from './types/Cliente';
 import type { Resposta } from './types/Resposta';
 
-const ADMINS = ['ti.desenhar@gmail.com']; // emails autorizados
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 function App() {
   const [fase, setFase] = useState<'welcome' | 'cadastro' | 'quiz' | 'result' | 'admin' | 'login'>('welcome');
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [respostas, setRespostas] = useState<Resposta[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserEmail(user?.email ?? null);
+      if (user) {
+        setUserEmail(user.email);
+        setIsAdmin(user.email === ADMIN_EMAIL);
+      } else {
+        setUserEmail(null);
+        setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
 
   const abrirAdmin = () => {
-    if (userEmail && ADMINS.includes(userEmail)) {
+    if (isAdmin) {
       setFase('admin');
     } else {
-      setFase('login'); // se não estiver logado, vai para tela de login
+      setFase('login');
     }
   };
 
@@ -41,23 +48,50 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: 16 }}>
-      {fase === 'welcome' && <Welcome onStart={() => setFase('cadastro')} onAdminOpen={abrirAdmin} showAdmin={true} />}
+    <div>
+      {fase === 'welcome' && (
+        <Welcome
+          onStart={() => setFase('cadastro')}
+          onAdminOpen={abrirAdmin}
+          showAdmin={isAdmin}
+        />
+      )}
 
-      {fase === 'cadastro' && <CadastroCliente onSubmit={(dados) => { setCliente({ ...dados, criadoEm: new Date() }); setFase('quiz'); }} />}
+      {fase === 'cadastro' && (
+        <CadastroCliente
+          onSubmit={(dados) => {
+            setCliente({ ...dados, criadoEm: new Date() });
+            setFase('quiz');
+          }}
+          onBack={() => setFase('welcome')}  
+        />
+      )}
 
-      {fase === 'quiz' && <Quiz onFinish={(respostas) => { setRespostas(respostas); setFase('result'); }} />}
+      {fase === 'quiz' && (
+        <Quiz
+          onFinish={(respostas) => {
+            setRespostas(respostas);
+            setFase('result');
+          }}
+        />
+      )}
 
       {fase === 'result' && cliente && (
-        <Result respostas={respostas} cliente={cliente} onRestart={() => setFase('welcome')} />
+        <Result
+          respostas={respostas}
+          cliente={cliente}
+          onRestart={() => setFase('welcome')}
+        />
       )}
 
       {fase === 'login' && <AdminLogin onLoginSuccess={() => setFase('admin')} />}
 
-      {fase === 'admin' && userEmail && ADMINS.includes(userEmail) && (
+      {fase === 'admin' && userEmail && isAdmin && (
         <div>
           <AdminPerguntasFirestore onClose={() => setFase('welcome')} />
-          <button className='primary-button' onClick={sair}>Sair</button>
+          <button className="primary-button" onClick={sair}>
+            Sair
+          </button>
         </div>
       )}
     </div>

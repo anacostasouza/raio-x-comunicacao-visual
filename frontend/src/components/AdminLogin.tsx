@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../services/firebase'; // seu arquivo de config do Firebase
+import { auth } from '../services/firebase'; 
+import '../styles/adminLogin.css';
 
 interface Props {
   onLoginSuccess: () => void;

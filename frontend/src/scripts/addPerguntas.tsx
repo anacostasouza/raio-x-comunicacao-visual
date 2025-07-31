@@ -5,7 +5,7 @@ import { etapas } from '../data/perguntas';
 async function addPerguntas() {
   for (const etapa of etapas) {
     await addDoc(collection(db, 'etapas'), etapa);
-    console.log(`✅ Etapa "${etapa.titulo}" adicionada`);
+    console.log(`Etapa "${etapa.titulo}" adicionada`);
   }
 }
 

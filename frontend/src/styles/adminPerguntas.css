@@ -1,0 +1,26 @@
+#pergunta-texto,
+#opcao-texto {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  width: 100%;
+  max-width: 500px;
+}
+
+#button-admin {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  margin: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#button-admin:hover {
+  background-color: var(--primary-hover-color);
+}

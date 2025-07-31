@@ -3,6 +3,7 @@ import type { Resposta } from '../types/Resposta';
 import type { Cliente } from '../types/Cliente';
 import { calcularPontuacaoPorEtapa, gerarResumoTexto, enviarWhatsApp, baixarPDF } from '../utils/resultUtils';
 import { etapas } from '../data/perguntas';
+import '../styles/result.css';
 
 interface ResultProps {
   respostas: Resposta[];
@@ -36,12 +37,11 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       <div className="diagnostico">
         {(() => {
           const resumoEtapas = gerarResumoTexto(respostas).split('\n\n');
-          const pontuacoes = calcularPontuacaoPorEtapa(respostas); // ✅ Agora a função é chamada corretamente
+          const pontuacoes = calcularPontuacaoPorEtapa(respostas); 
 
           return etapas.map((etapa, index) => (
             <div key={etapa.id} className="etapa-diagnostico">
               <h3>{etapa.titulo}</h3>
-              {/* ✅ Usando o array pontuacoes */}
               <p>
                 {'★'.repeat(pontuacoes[index])}{'☆'.repeat(5 - pontuacoes[index])}
               </p>
@@ -51,7 +51,7 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
         })()}
       </div>
 
-      <div>
+      <div className='actions'>
         <button className='primary-button' onClick={handleEnviarWhatsApp}>
           Enviar Resultado pelo WhatsApp
         </button>

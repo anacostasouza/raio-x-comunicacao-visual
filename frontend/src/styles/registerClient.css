@@ -1,0 +1,32 @@
+.form-cadastro {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.form-cadastro label {
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.form-cadastro input {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+}
+
+.form-cadastro button {
+  margin-top: 1rem;
+}
+
+@media (max-width: 480px) {
+  .form-cadastro input {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+}

@@ -1,10 +1,11 @@
 import React from 'react';
 import logo from '../assets/logo.png';
+import '../styles/welcome.css';
 
 interface Props {
   onStart: () => void;
   onAdminOpen?: () => void;
-  showAdmin?: boolean;
+  showAdmin?: boolean; 
 }
 
 const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
@@ -13,6 +14,7 @@ const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
       <img src={logo} alt="Logo Desenhar Comunicação Visual" className="logo" />
       <h1>Raio-X da Comunicação Visual</h1>
       <p>Descubra o que a sua comunicação visual está realmente transmitindo!</p>
+
       <button className="primary-button" onClick={onStart}>
         Começar o Raio-X
       </button>

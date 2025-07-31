@@ -4,36 +4,30 @@ import { etapas } from '../data/perguntas';
 import { criarContatoENotificar } from '../services/botconversaService';
 import jsPDF from 'jspdf';
 
-/**
- * Calcula a pontuação média de cada etapa do diagnóstico (1 a 5 estrelas).
- */
 export function calcularPontuacaoPorEtapa(respostas: Resposta[] = []): number[] {
-  // 🔒 Garantia extra para não quebrar caso 'respostas' venha errado
   if (!Array.isArray(respostas)) {
     console.error("❌ Erro: 'respostas' não é um array!", respostas);
     respostas = [];
   }
 
   return etapas.map((etapa) => {
-    // filtra respostas da etapa
     const respostasEtapa = respostas.filter(r => r.etapa === etapa.id);
 
     if (respostasEtapa.length === 0) {
-      return 1; // se não respondeu nada, dá 1 estrela
+      return 1; 
     }
 
-    // média de valores (0 a 2)
     const total = respostasEtapa.reduce((acc, r) => acc + r.valor, 0);
     const media = total / respostasEtapa.length;
 
-    // conversão de 0-2 para 1-5 estrelas
     return Math.round((media / 2) * 4 + 1);
   });
 }
 
-/**
- * Gera um resumo em texto (usado para WhatsApp e PDF).
- */
+/* 
+Resumo para PDF e mensagem BotConversa 
+*/
+
 export function gerarResumoTexto(respostas: Resposta[]): string {
   const pontuacoes = calcularPontuacaoPorEtapa(respostas);
 
@@ -58,8 +52,9 @@ export function gerarResumoTexto(respostas: Resposta[]): string {
 }
 
 /**
- * Envia o diagnóstico para o WhatsApp via BotConversa.
- */
+ Envio de mensagem via WhatsApp usando o BotConversa.
+*/
+
 export async function enviarWhatsApp(respostas: Resposta[], cliente: Cliente) {
   if (!cliente.telefone) {
     throw new Error('O cliente não possui telefone cadastrado.');
@@ -73,9 +68,10 @@ export async function enviarWhatsApp(respostas: Resposta[], cliente: Cliente) {
   }
 }
 
-/**
- * Gera um PDF do diagnóstico com layout básico e baixa para o usuário.
- */
+/*
+ * Gera um PDF do diagnóstico.
+*/
+
 export async function baixarPDF(respostas: Resposta[]) {
   const pontuacoes = calcularPontuacaoPorEtapa(respostas);
   const doc = new jsPDF();

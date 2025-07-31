@@ -18,7 +18,13 @@
     ],
     "typescript-config/consistent-casing": "off",
     "typescript-config/is-valid": "off",
-    "typescript-config/strict": "off"
+    "typescript-config/strict": "off",
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id-active": "off"
+      }
+    ]
   },
   "browserslist": [
     "defaults",

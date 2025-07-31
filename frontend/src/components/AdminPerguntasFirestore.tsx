@@ -8,9 +8,8 @@ import {
   doc,
   query,
   orderBy,
-  addDoc,
 } from 'firebase/firestore';
-import '../styles/AdminScreen.css';
+import '../styles/adminPerguntas.css';
 
 interface Props {
   onClose: () => void;
@@ -23,7 +22,6 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
-  // 🔄 Carregar dados do Firestore
   useEffect(() => {
     async function carregarEtapas() {
       setLoading(true);
@@ -48,14 +46,12 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
     carregarEtapas();
   }, []);
 
-  // 🔄 Atualizar localmente as etapas no estado
   const atualizarEtapas = (etapaAtualizada: Etapa & { _docId?: string }) => {
     setEtapas(prev =>
       prev.map(e => (e.id === etapaAtualizada.id ? etapaAtualizada : e))
     );
   };
 
-  // ➕ Adicionar pergunta (máximo 2)
   const adicionarPergunta = (etapa: Etapa & { _docId?: string }) => {
     if (etapa.perguntas.length >= 2) {
       alert('Cada etapa deve ter exatamente 2 perguntas. Não é possível adicionar mais.');
@@ -83,7 +79,6 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
     atualizarEtapas(novaEtapa);
   };
 
-  // ❌ Remover pergunta (mínimo 2)
   const removerPergunta = (etapa: Etapa & { _docId?: string }, perguntaId: number) => {
     if (etapa.perguntas.length <= 2) {
       alert('Cada etapa deve ter exatamente 2 perguntas. Não é possível remover.');
@@ -98,7 +93,6 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
     atualizarEtapas(novaEtapa);
   };
 
-  // 📝 Atualizar texto da pergunta
   const atualizarTextoPergunta = (
     etapa: Etapa & { _docId?: string },
     perguntaId: number,
@@ -113,7 +107,6 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
     atualizarEtapas(novaEtapa);
   };
 
-  // 📝 Atualizar texto da opção
   const atualizarOpcao = (
     etapa: Etapa & { _docId?: string },
     perguntaId: number,
@@ -136,9 +129,7 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
     atualizarEtapas(novaEtapa);
   };
 
-  // 💾 Salvar etapas atualizadas no Firestore
   const salvarAlteracoes = async () => {
-    // ✅ Verificação antes de salvar
     const etapasInvalidas = etapas.filter(e => e.perguntas.length !== 2);
     if (etapasInvalidas.length > 0) {
       alert('⚠️ Todas as etapas devem ter exatamente 2 perguntas antes de salvar.');
@@ -151,7 +142,6 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
         etapas.map(async etapa => {
           if (!('_docId' in etapa) || !etapa._docId) return;
           const docRef = doc(db, 'etapas', String(etapa._docId));
-          // Remove a propriedade _docId antes de salvar
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { _docId, ...etapaSalvar } = etapa;
           await updateDoc(docRef, etapaSalvar);
@@ -215,13 +205,12 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
             </div>
           ))}
 
-          {/* Botão de adicionar pergunta, desabilitado se já houver 2 */}
           <button
             id='button-admin'
             onClick={() => adicionarPergunta(etapa)}
             disabled={etapa.perguntas.length >= 2}
           >
-            ➕ Adicionar Pergunta
+             Adicionar Pergunta
           </button>
         </section>
       ))}
@@ -230,7 +219,7 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
         <button 
         id='button-admin'
         onClick={salvarAlteracoes} disabled={salvando}>
-          {salvando ? 'Salvando...' : '💾 Salvar Alterações'}
+          {salvando ? 'Salvando...' : ' Salvar Alterações'}
         </button>
       </div>
     </div>
