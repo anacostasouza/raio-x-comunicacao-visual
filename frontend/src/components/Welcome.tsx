@@ -3,9 +3,11 @@ import logo from '../assets/logo.png';
 
 interface Props {
   onStart: () => void;
+  onAdminOpen?: () => void;
+  showAdmin?: boolean;
 }
 
-const Welcome: React.FC<Props> = ({ onStart }) => {
+const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
   return (
     <main className="app-container centered-container">
       <img src={logo} alt="Logo Desenhar Comunicação Visual" className="logo" />
@@ -14,6 +16,12 @@ const Welcome: React.FC<Props> = ({ onStart }) => {
       <button className="primary-button" onClick={onStart}>
         Começar o Raio-X
       </button>
+
+      {showAdmin && onAdminOpen && (
+        <button className="primary-button" onClick={onAdminOpen}>
+          Administração
+        </button>
+      )}
     </main>
   );
 };

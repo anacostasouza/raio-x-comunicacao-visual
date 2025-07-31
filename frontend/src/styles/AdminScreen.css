@@ -103,50 +103,7 @@ p {
   font-size: 1rem;
   font-family: 'Comfortaa', cursive;
   width: 100%;
-  margin-left: 2rem;
 }
-
-/* Admin Screen */
-
-#pergunta-texto {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius);  
-  font-size: 1rem;
-  font-family: 'Comfortaa', cursive;
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-#opcao-texto {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius);  
-  font-size: 1rem;
-  font-family: 'Comfortaa', cursive;
-  width: 100%;
-  max-width: 300px;
-  margin-left: 2rem;
-}
-
-#button-admin {
-  background-color: var(--primary-color);
-  align-items: center;
-  color: white;
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: var(--border-radius);
-  font-size: 10px;
-  margin: 1rem 0.5rem;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: background-color 0.3s;
-  width: fit-content;
-  height: fit-content;
-  font-family: 'Comfortaa', sans-serif;
-}
-
-/* End Admin Screen */
 
 .quiz-container {
   width: 100%;
@@ -249,7 +206,7 @@ p {
   }
 
   .form-cadastro, .quiz-container, .diagnostico {
-    padding: 0 1rem;
+    padding: 0 1rem;    
   }
 
   .primary-button, .botao-proximo {

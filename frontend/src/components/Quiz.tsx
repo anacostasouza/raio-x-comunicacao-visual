@@ -27,19 +27,24 @@ const Quiz: React.FC<QuizProps> = ({ onFinish }) => {
       return;
     }
 
+    // ✅ Mapeia as respostas desta etapa
     const respostasDaEtapa: Resposta[] = etapa.perguntas.map(pergunta => ({
       etapa: etapa.id,
       perguntaId: pergunta.id,
       valor: respostasEtapa[pergunta.id],
     }));
 
-    const todasRespostas = [...respostasAcumuladas, ...respostasDaEtapa];
+    // ✅ Junta tudo que já foi respondido com a etapa atual
+    const todasRespostas: Resposta[] = [...respostasAcumuladas, ...respostasDaEtapa];
 
     if (etapaAtual < etapas.length - 1) {
+      // Vai para a próxima etapa
       setRespostasAcumuladas(todasRespostas);
       setRespostasEtapa({});
       setEtapaAtual(etapaAtual + 1);
     } else {
+      // 🚀 Finaliza e envia um ARRAY de respostas
+      console.log('✅ Todas as respostas:', todasRespostas);
       onFinish(todasRespostas);
     }
   };
@@ -48,6 +53,7 @@ const Quiz: React.FC<QuizProps> = ({ onFinish }) => {
     <main className="app-container">
       <div className="quiz-container">
         <h2>{etapa.titulo}</h2>
+
         {etapa.perguntas.map((pergunta: Pergunta) => (
           <div key={pergunta.id} className="pergunta">
             <p>{pergunta.texto}</p>

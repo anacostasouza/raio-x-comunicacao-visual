@@ -16,11 +16,11 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
   const handleEnviarWhatsApp = async () => {
     if (!cliente) return alert('Cliente não encontrado!');
     try {
-      setStatus('📤 Enviando...');
+      setStatus('Enviando...');
       await enviarWhatsApp(respostas, cliente);
-      setStatus('✅ Mensagem enviada com sucesso!');
+      setStatus('Mensagem enviada com sucesso!');
     } catch (err) {
-      setStatus('❌ Erro ao enviar WhatsApp.');
+      setStatus('Erro ao enviar WhatsApp.');
       console.error(err);
     }
   };
@@ -52,20 +52,20 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       </div>
 
       <div>
-        <button onClick={handleEnviarWhatsApp}>
-          📲 Enviar Resultado pelo WhatsApp
+        <button className='primary-button' onClick={handleEnviarWhatsApp}>
+          Enviar Resultado pelo WhatsApp
         </button>
 
-        <button onClick={handlePDF}>
-          📄 Baixar PDF do Diagnóstico
+        <button className='primary-button' onClick={handlePDF}>
+          Baixar PDF do Diagnóstico
         </button>
 
-        <button onClick={onRestart}>
-          🔄 Reiniciar Diagnóstico
+        <button className='primary-button' onClick={onRestart}>
+          Reiniciar Diagnóstico
         </button>
       </div>
 
-      {status && <p className="mt-4 text-lg">{status}</p>}
+      {status && <p>{status}</p>}
     </div>
   );
 };
