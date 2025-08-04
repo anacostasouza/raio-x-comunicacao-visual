@@ -1,7 +1,4 @@
-const API_URL = 
-  process.env.NODE_ENV === 'production'
-    ? 'https://backend-51b4vjdmz-ti-desenhars-projects.vercel.app/proxy'
-    : 'http://localhost:4000/proxy';
+const API_URL = 'https://backend-51b4vjdmz-ti-desenhars-projects.vercel.app/proxy'
 
 export async function criarContatoENotificar(
   nome: string,

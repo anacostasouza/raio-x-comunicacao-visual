@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { etapas, type Etapa, type Pergunta } from '../data/perguntas';
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import type { Etapa} from '../types/Etapas';
+import type { Pergunta } from '../types/Pergunta';
 import type { Resposta } from '../types/Resposta';
 import '../styles/quiz.css';
 
@@ -8,18 +11,45 @@ interface QuizProps {
 }
 
 const Quiz: React.FC<QuizProps> = ({ onFinish }) => {
+  const [etapas, setEtapas] = useState<Etapa[]>([]);
   const [etapaAtual, setEtapaAtual] = useState(0);
   const [respostasEtapa, setRespostasEtapa] = useState<Record<number, number>>({});
   const [respostasAcumuladas, setRespostasAcumuladas] = useState<Resposta[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const etapa: Etapa = etapas[etapaAtual];
+  useEffect(() => {
+    const fetchEtapas = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'etapas'));
+        const etapasData: Etapa[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Etapa[];
+
+        // Se quiser garantir a ordem:
+        etapasData.sort((a, b) => Number(a.ordem ?? 0) - Number(b.ordem ?? 0));
+
+        setEtapas(etapasData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao buscar etapas:', error);
+      }
+    };
+
+    fetchEtapas();
+  }, []);
+
+  if (loading) return <p>Carregando etapas...</p>;
+  if (etapas.length === 0) return <p>Nenhuma etapa encontrada.</p>;
+
+  const etapa = etapas[etapaAtual];
 
   const handleResposta = (perguntaId: number, valor: number) => {
     setRespostasEtapa(prev => ({ ...prev, [perguntaId]: valor }));
   };
 
-  const todasRespondidas = etapa.perguntas.every(
-    pergunta => Object.prototype.hasOwnProperty.call(respostasEtapa, pergunta.id)
+  const todasRespondidas = etapa.perguntas.every(pergunta =>
+    Object.prototype.hasOwnProperty.call(respostasEtapa, pergunta.id)
   );
 
   const handleProximaEtapa = () => {
@@ -31,17 +61,16 @@ const Quiz: React.FC<QuizProps> = ({ onFinish }) => {
     const respostasDaEtapa: Resposta[] = etapa.perguntas.map(pergunta => ({
       etapa: etapa.id,
       perguntaId: pergunta.id,
-      valor: respostasEtapa[pergunta.id],
+      valor: respostasEtapa[pergunta.id]
     }));
 
-    const todasRespostas: Resposta[] = [...respostasAcumuladas, ...respostasDaEtapa];
+    const todasRespostas = [...respostasAcumuladas, ...respostasDaEtapa];
 
     if (etapaAtual < etapas.length - 1) {
       setRespostasAcumuladas(todasRespostas);
       setRespostasEtapa({});
       setEtapaAtual(etapaAtual + 1);
     } else {
-      console.log('✅ Todas as respostas:', todasRespostas);
       onFinish(todasRespostas);
     }
   };

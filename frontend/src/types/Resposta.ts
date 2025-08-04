@@ -1,5 +1,5 @@
-export type Resposta = {
-  etapa: number;
+export interface Resposta {
+  etapa: string;       
   perguntaId: number;
-  valor: number; 
-};
+  valor: number;
+}

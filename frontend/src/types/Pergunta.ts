@@ -1,5 +1,10 @@
-export type Pergunta = {
-  id: string;
+export interface Pergunta {
+  id: number;
   texto: string;
-  resposta: 'sim' | 'nao' | null;
-};
+  opcoes: Opcao[];
+}
+
+export interface Opcao {
+  texto: string;
+  valor: number;
+}

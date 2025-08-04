@@ -19,7 +19,7 @@ const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
         Começar o Raio-X
       </button>
 
-      {showAdmin && onAdminOpen && (
+      {onAdminOpen && (
         <button className="primary-button" onClick={onAdminOpen}>
           Administração
         </button>

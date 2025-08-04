@@ -157,17 +157,16 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
   if (loading) return <p>Carregando etapas...</p>;
 
   return (
-    <div>
-      <h1>Administração de Perguntas (Firestore)</h1>
+    <div className='AdminPerguntas'>
+      <h1>Administração de Perguntas</h1>
 
-      <button id='button-admin' onClick={onClose}>Fechar Administração</button>
 
       {etapas.map(etapa => (
         <section key={etapa.id}>
           <h2>{etapa.titulo}</h2>
 
           {etapa.perguntas.map(pergunta => (
-            <div key={pergunta.id}>
+            <div className='perguntas' key={pergunta.id}>
               <input
                 id='pergunta-texto'
                 className='form-edit input'
@@ -221,6 +220,7 @@ const AdminPerguntasFirestore: React.FC<Props> = ({ onClose }) => {
         onClick={salvarAlteracoes} disabled={salvando}>
           {salvando ? 'Salvando...' : ' Salvar Alterações'}
         </button>
+        <button id='button-admin' onClick={onClose}>Fechar Administração</button>
       </div>
     </div>
   );

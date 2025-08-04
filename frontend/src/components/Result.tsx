@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Resposta } from '../types/Resposta';
 import type { Cliente } from '../types/Cliente';
 import { calcularPontuacaoPorEtapa, gerarResumoTexto, enviarWhatsApp, baixarPDF } from '../utils/resultUtils';
 import { etapas } from '../data/perguntas';
+import { salvarDiagnostico } from '../services/firebaseService'; // ✅ IMPORT DO SERVICE
 import '../styles/result.css';
 
 interface ResultProps {
@@ -14,6 +15,18 @@ interface ResultProps {
 const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
   const [status, setStatus] = useState<string>('');
 
+  // ✅ SALVA O DIAGNÓSTICO NO FIRESTORE ASSIM QUE O RESULT APARECER
+  useEffect(() => {
+    if (cliente) {
+      salvarDiagnostico(cliente, respostas)
+        .then(() => console.log('✅ Diagnóstico salvo no Firestore!'))
+        .catch(err => console.error('❌ Erro ao salvar diagnóstico:', err));
+    } else {
+      console.warn('⚠️ Nenhum cliente encontrado, diagnóstico não foi salvo.');
+    }
+  }, [cliente, respostas]);
+
+  // 📲 Enviar WhatsApp
   const handleEnviarWhatsApp = async () => {
     if (!cliente) return alert('Cliente não encontrado!');
     try {
@@ -26,6 +39,7 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
     }
   };
 
+  // 📥 Baixar PDF
   const handlePDF = async () => {
     await baixarPDF(respostas);
   };
@@ -37,7 +51,7 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       <div className="diagnostico">
         {(() => {
           const resumoEtapas = gerarResumoTexto(respostas).split('\n\n');
-          const pontuacoes = calcularPontuacaoPorEtapa(respostas); 
+          const pontuacoes = calcularPontuacaoPorEtapa(respostas);
 
           return etapas.map((etapa, index) => (
             <div key={etapa.id} className="etapa-diagnostico">

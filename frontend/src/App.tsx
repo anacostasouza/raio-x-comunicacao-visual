@@ -89,9 +89,6 @@ function App() {
       {fase === 'admin' && userEmail && isAdmin && (
         <div>
           <AdminPerguntasFirestore onClose={() => setFase('welcome')} />
-          <button className="primary-button" onClick={sair}>
-            Sair
-          </button>
         </div>
       )}
     </div>

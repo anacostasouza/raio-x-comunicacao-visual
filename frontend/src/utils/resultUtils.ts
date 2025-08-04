@@ -2,7 +2,7 @@ import type { Resposta } from '../types/Resposta';
 import type { Cliente } from '../types/Cliente';
 import { etapas } from '../data/perguntas';
 import { criarContatoENotificar } from '../services/botconversaService';
-import jsPDF from 'jspdf';
+
 
 export function calcularPontuacaoPorEtapa(respostas: Resposta[] = []): number[] {
   if (!Array.isArray(respostas)) {
@@ -11,7 +11,7 @@ export function calcularPontuacaoPorEtapa(respostas: Resposta[] = []): number[] 
   }
 
   return etapas.map((etapa) => {
-    const respostasEtapa = respostas.filter(r => r.etapa === etapa.id);
+    const respostasEtapa = respostas.filter(r => Number(r.etapa) === etapa.id);
 
     if (respostasEtapa.length === 0) {
       return 1; 
@@ -46,7 +46,7 @@ export function gerarResumoTexto(respostas: Resposta[]): string {
     }
   });
 
-  resumo += ` *Quer ajuda para melhorar?* Acesse: https://www.desenharcomunicacaovisual.com.br\n`;
+  resumo += ` *Quer ajuda para melhorar?* Entre em contato em nosso WhatsApp: (31) 9 9131-1431\n`;
 
   return resumo;
 }
@@ -67,59 +67,59 @@ export async function enviarWhatsApp(respostas: Resposta[], cliente: Cliente) {
     throw new Error(resultado.mensagem || 'Erro ao enviar mensagem pelo WhatsApp.');
   }
 }
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
-/*
- * Gera um PDF do diagnóstico.
-*/
+// 👇 Sua fonte customizada convertida em base64 (exemplo fictício):
+import myFontBase64 from "../assets/font/Comfortaa-Medium.ttf" // conteúdo string base64
 
-export async function baixarPDF(respostas: Resposta[]) {
-  const pontuacoes = calcularPontuacaoPorEtapa(respostas);
-  const doc = new jsPDF();
+// 👇 Sua logo convertida em base64:
+import logoBase64 from "../assets/logo.png"; // data:image/png;base64,...
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('📊 Raio-X da Comunicação Visual', 20, 20);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.text('Seu diagnóstico completo de comunicação visual', 20, 30);
-
-  let y = 50;
-  etapas.forEach((etapa, index) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text(`${etapa.titulo}`, 20, y);
-    y += 8;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-
-    const estrelas = '★'.repeat(pontuacoes[index]) + '☆'.repeat(5 - pontuacoes[index]);
-    doc.text(`Pontuação: ${estrelas}`, 20, y);
-    y += 8;
-
-    if (pontuacoes[index] <= 2) {
-      doc.setTextColor(200, 0, 0);
-      doc.text('Atenção! Há pontos importantes a melhorar.', 20, y);
-    } else if (pontuacoes[index] === 3) {
-      doc.setTextColor(255, 140, 0);
-      doc.text('Mediano. Há espaço para ajustes.', 20, y);
-    } else {
-      doc.setTextColor(0, 128, 0);
-      doc.text('Ótimo! Você está bem nesta etapa.', 20, y);
-    }
-
-    doc.setTextColor(0, 0, 0);
-    y += 15;
-
-    if (y > 260) {
-      doc.addPage();
-      y = 20;
-    }
+export async function baixarPDF(respostas: string[], cliente: string) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a5", // A5
   });
 
-  doc.setFontSize(10);
-  doc.text('Saiba mais em: www.desenharcomunicacaovisual.com.br', 20, 280);
+  // 👉 Adiciona a fonte customizada
+  doc.addFileToVFS("Comfortaa.ttf", myFontBase64);
+  doc.addFont("Comfortaa.ttf", "Comfortaa", "normal");
+  doc.setFont("Comfortaa");
 
-  doc.save('diagnostico_comunicacao_visual.pdf');
+  // 👉 Fundo cinza claro
+  doc.setFillColor("#d7d7d7");
+  doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), "F");
+
+  // 👉 Logo no canto superior esquerdo
+  doc.addImage(logoBase64, "PNG", 20, 20, 60, 60); // x, y, w, h
+
+  // 👉 Texto do título
+  doc.setTextColor("#000");
+  doc.setFontSize(16);
+  doc.text("Diagnóstico de Comunicação Visual", 100, 40);
+
+  // 👉 Informações do cliente
+  doc.setFontSize(12);
+  doc.text(`Cliente: ${cliente}`, 100, 65);
+
+  // 👉 Tabela com respostas (exemplo simplificado)
+  autoTable(doc, {
+    startY: 100,
+    head: [["Etapa", "Resposta"]],
+    body: respostas.map((resp, i) => [`Etapa ${i + 1}`, resp]),
+    styles: {
+      textColor: "#000",
+      font: "Comfortaa",
+      fontSize: 10,
+    },
+    headStyles: {
+      fillColor: "#444",
+      textColor: "#fff",
+    },
+  });
+
+  // 👉 Salva o PDF
+  doc.save("diagnostico.pdf");
 }
