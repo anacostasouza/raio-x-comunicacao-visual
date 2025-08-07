@@ -61,6 +61,30 @@ body {
   font-family: 'Comfortaa', cursive;
 }
 
+.logout-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.logout-button {
+  max-width: 500px;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.logout-button:hover {
+  background-color: var(--primary-hover-color);
+}
+
 @media screen and (max-width: 1024px) {
   .app-container {
     padding: 15px;

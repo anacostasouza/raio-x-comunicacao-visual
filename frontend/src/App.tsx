@@ -3,7 +3,8 @@ import Welcome from './components/Welcome';
 import CadastroCliente from './components/RegisterClient';
 import Quiz from './components/Quiz';
 import Result from './components/Result';
-import AdminPerguntasFirestore from './components/AdminPerguntasFirestore';
+import AdminPerguntasFirestore from './components/AdminPerguntas';
+import AdminDiagnosticos from './components/AdminDiagnosticos';
 import AdminLogin from './components/AdminLogin';
 
 import { auth } from './services/firebase';
@@ -15,7 +16,10 @@ import type { Resposta } from './types/Resposta';
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 function App() {
-  const [fase, setFase] = useState<'welcome' | 'cadastro' | 'quiz' | 'result' | 'admin' | 'login'>('welcome');
+  const [fase, setFase] = useState<
+    'welcome' | 'cadastro' | 'quiz' | 'result' | 'admin' | 'login' | 'diagnosticos'
+  >('welcome');
+
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [respostas, setRespostas] = useState<Resposta[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -34,9 +38,9 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const abrirAdmin = () => {
+  const abrirAdmin = (destino: 'admin' | 'diagnosticos' = 'admin') => {
     if (isAdmin) {
-      setFase('admin');
+      setFase(destino);
     } else {
       setFase('login');
     }
@@ -63,7 +67,7 @@ function App() {
             setCliente({ ...dados, criadoEm: new Date() });
             setFase('quiz');
           }}
-          onBack={() => setFase('welcome')}  
+          onBack={() => setFase('welcome')}
         />
       )}
 
@@ -89,10 +93,26 @@ function App() {
       {fase === 'admin' && userEmail && isAdmin && (
         <div>
           <AdminPerguntasFirestore onClose={() => setFase('welcome')} />
+            <div className='logout-container'>
+              <button className="logout-button" onClick={sair}>
+                Desconectar
+              </button>
+          </div>
+        </div>
+      )}
+
+      {fase === 'diagnosticos' && userEmail && isAdmin && (
+        <div>
+          <AdminDiagnosticos />
+          <div className='logout-container'>
+            <button className="primary-button" onClick={() => setFase('welcome')}>
+              Voltar para o Início
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-export default App;
+export default App; 

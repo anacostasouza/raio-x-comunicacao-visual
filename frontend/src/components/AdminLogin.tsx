@@ -23,26 +23,27 @@ const AdminLogin: React.FC<Props> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div>
-      <h2>Login do Administrador</h2>
+    <div id='admin-login-container'>
+      <h2 id='admin-title'>Login do Administrador</h2>
+      <div className="input-button-container">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        /><br/>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      /><br/>
+        <input
+          type="password"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+        /><br/>
 
-      <input
-        type="password"
-        placeholder="Senha"
-        value={senha}
-        onChange={(e) => setSenha(e.target.value)}
-      /><br/>
+        {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
-
-      <button onClick={handleLogin}>Entrar</button>
+        <button onClick={handleLogin}>Entrar</button>
+      </div>
     </div>
   );
 };

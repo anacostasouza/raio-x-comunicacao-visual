@@ -55,8 +55,29 @@ body {
   color: var(--text-muted);
 }
 
+.AdminPerguntas button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color var(--transition);
+}
+
+.AdminPerguntas button:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.AdminPerguntas button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .form-edit.input {
-  width: 100%;
+  width: 97%;
   padding: 0.6rem;
   margin: 0.3rem 0 1rem;
   border-radius: var(--border-radius);
@@ -101,6 +122,16 @@ label {
 
 div > button#button-admin:not(:last-child) {
   margin-right: 0.5rem;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.admin-actions button {
+  margin: 0 0.5rem;
 }
 
 @media screen and (max-width: 768px) {

@@ -1,19 +1,37 @@
-.admin-login-container {
-  max-width: 400px;
-  width: 100%;
-  margin-top: 2rem;
+.input-button-container {
+  display: grid;
+  justify-content: center;
 }
 
-.admin-login-container input {
-  width: 100%;
+#admin-title {
+  display: grid;
+  justify-content: center;
+}
+
+#admin-login-container input {
+  display: grid;
+  justify-items: center;
+  font-family: 'Comfortaa', sans-serif;
+  width: fit-content;
   padding: 0.75rem;
   margin-bottom: 1rem;
   border-radius: var(--border-radius);
   border: 1px solid #ccc;
 }
 
-.admin-login-container button {
+#admin-login-container button {
+  font-family: 'Comfortaa', sans-serif;
+  max-width: 200px;
   width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+}
+
+#admin-login-container button:hover {
+  background-color: var(--primary-hover-color);
 }
 
 @media (max-width: 480px) {

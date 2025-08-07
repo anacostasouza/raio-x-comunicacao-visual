@@ -1,0 +1,35 @@
+.AdminDiagnosticos {
+  padding: 2rem;
+  display: grid;
+  justify-content: center;
+}
+
+.diagnostico-card {
+  background: #f5f5f5;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow-light);
+}
+
+.diagnostico-card button {
+  font-family: 'Comfortaa', cursive;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-top: 1rem;
+  margin-right: 1rem;
+  transition: background-color var(--transition);
+}
+.primary-button {
+  display: grid;
+  justify-content: center;
+}
+
+.primary-button:hover {
+  background-color: var(--primary-hover-color);
+}

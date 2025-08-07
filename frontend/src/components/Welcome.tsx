@@ -4,7 +4,7 @@ import '../styles/welcome.css';
 
 interface Props {
   onStart: () => void;
-  onAdminOpen?: () => void;
+  onAdminOpen?: (destino?: 'diagnosticos' | 'admin') => void;
   showAdmin?: boolean; 
 }
 
@@ -20,9 +20,31 @@ const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
       </button>
 
       {onAdminOpen && (
-        <button className="primary-button" onClick={onAdminOpen}>
-          Administração
-        </button>
+        <>
+          {showAdmin ? (
+            <>
+              <button
+                className="primary-button"
+                onClick={() => onAdminOpen('diagnosticos')}
+              >
+                Ver Diagnósticos
+              </button>
+              <button
+                className="primary-button"
+                onClick={() => onAdminOpen('admin')}
+              >
+                Administrar Perguntas
+              </button>
+            </>
+          ) : (
+            <button
+              className="primary-button"
+              onClick={() => onAdminOpen('admin')}
+            >
+              Login Admin
+            </button>
+          )}
+        </>
       )}
     </main>
   );

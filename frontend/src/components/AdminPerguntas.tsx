@@ -1,93 +1,161 @@
-import React, { useState } from 'react';
-import { etapas as etapasData } from '../data/perguntas';
-import type { Etapa, Pergunta } from '../data/perguntas';
+import React, { useEffect, useState } from 'react';
+import type { Etapa } from '../types/Etapas';
+import type { Pergunta } from '../types/Pergunta';
+import { db } from '../services/firebase';
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  query,
+  orderBy,
+} from 'firebase/firestore';
 import '../styles/adminPerguntas.css';
 
-const AdminPerguntas: React.FC = () => {
-  const [etapas, setEtapas] = useState<Etapa[]>(etapasData);
+interface Props {
+  onClose: () => void;
+}
 
-  const adicionarPergunta = (etapaId: number) => {
+const AdminPerguntas: React.FC<Props> = ({ onClose }) => {
+  const [etapas, setEtapas] = useState<(Etapa & { _docId?: string })[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+
+  useEffect(() => {
+    async function carregarEtapas() {
+      setLoading(true);
+      try {
+        const q = query(collection(db, 'etapas'), orderBy('id'));
+        const snapshot = await getDocs(q);
+        const dados: (Etapa & { _docId: string })[] = snapshot.docs.map(docSnap => {
+          const data = docSnap.data() as Etapa;
+          return {
+            ...data,
+            _docId: docSnap.id,
+            perguntas: data.perguntas || [],
+          };
+        });
+        setEtapas(dados);
+      } catch (err) {
+        alert('Erro ao carregar etapas: ' + err);
+      }
+      setLoading(false);
+    }
+
+    carregarEtapas();
+  }, []);
+
+  const atualizarEtapas = (etapaAtualizada: Etapa & { _docId?: string }) => {
     setEtapas(prev =>
-      prev.map(etapa => {
-        if (etapa.id !== etapaId) return etapa;
-
-        const novoId = Math.max(0, ...etapa.perguntas.map(p => p.id)) + 1;
-        const novaPergunta: Pergunta = {
-          id: novoId,
-          texto: 'Nova pergunta...',
-          opcoes: [
-            { texto: 'Resposta ótima', valor: 2 },
-            { texto: 'Resposta média', valor: 1 },
-            { texto: 'Resposta ruim', valor: 0 },
-          ],
-        };
-
-        return { ...etapa, perguntas: [...etapa.perguntas, novaPergunta] };
-      })
+      prev.map(e => (e.id === etapaAtualizada.id ? etapaAtualizada : e))
     );
   };
 
-  const removerPergunta = (etapaId: number, perguntaId: number) => {
-    setEtapas(prev =>
-      prev.map(etapa => {
-        if (etapa.id !== etapaId) return etapa;
+  const adicionarPergunta = (etapa: Etapa & { _docId?: string }) => {
+    if (etapa.perguntas.length >= 2) {
+      alert('Cada etapa deve ter exatamente 2 perguntas. Não é possível adicionar mais.');
+      return;
+    }
 
-        if (etapa.perguntas.length <= 2) {
-          alert('Cada etapa deve ter pelo menos 2 perguntas.');
-          return etapa;
-        }
+    const novoId = etapa.perguntas.length
+      ? Math.max(...etapa.perguntas.map(p => p.id)) + 1
+      : 1;
 
-        const novasPerguntas = etapa.perguntas.filter(p => p.id !== perguntaId);
-        return { ...etapa, perguntas: novasPerguntas };
-      })
-    );
+    const novaPergunta: Pergunta = {
+      id: novoId,
+      texto: 'Nova pergunta...',
+      opcoes: [
+        { texto: 'Resposta ótima', valor: 2 },
+        { texto: 'Resposta média', valor: 1 },
+        { texto: 'Resposta ruim', valor: 0 },
+      ],
+    };
+
+    atualizarEtapas({
+      ...etapa,
+      perguntas: [...etapa.perguntas, novaPergunta],
+    });
+  };
+
+  const removerPergunta = (etapa: Etapa & { _docId?: string }, perguntaId: number) => {
+    if (etapa.perguntas.length <= 2) {
+      alert('Cada etapa deve ter exatamente 2 perguntas.');
+      return;
+    }
+
+    const novaEtapa = {
+      ...etapa,
+      perguntas: etapa.perguntas.filter(p => p.id !== perguntaId),
+    };
+
+    atualizarEtapas(novaEtapa);
   };
 
   const atualizarTextoPergunta = (
-    etapaId: number,
+    etapa: Etapa & { _docId?: string },
     perguntaId: number,
     novoTexto: string
   ) => {
-    setEtapas(prev =>
-      prev.map(etapa => {
-        if (etapa.id !== etapaId) return etapa;
-
-        const perguntasAtualizadas = etapa.perguntas.map(p =>
-          p.id === perguntaId ? { ...p, texto: novoTexto } : p
-        );
-
-        return { ...etapa, perguntas: perguntasAtualizadas };
-      })
-    );
+    const novaEtapa = {
+      ...etapa,
+      perguntas: etapa.perguntas.map(p =>
+        p.id === perguntaId ? { ...p, texto: novoTexto } : p
+      ),
+    };
+    atualizarEtapas(novaEtapa);
   };
 
   const atualizarOpcao = (
-    etapaId: number,
+    etapa: Etapa & { _docId?: string },
     perguntaId: number,
     opcaoIndex: number,
     novoTexto: string
   ) => {
-    setEtapas(prev =>
-      prev.map(etapa => {
-        if (etapa.id !== etapaId) return etapa;
-
-        const perguntasAtualizadas = etapa.perguntas.map(p => {
-          if (p.id !== perguntaId) return p;
-
-          const opcoesAtualizadas = p.opcoes.map((opcao, idx) =>
-            idx === opcaoIndex ? { ...opcao, texto: novoTexto } : opcao
-          );
-
-          return { ...p, opcoes: opcoesAtualizadas };
-        });
-
-        return { ...etapa, perguntas: perguntasAtualizadas };
-      })
-    );
+    const novaEtapa = {
+      ...etapa,
+      perguntas: etapa.perguntas.map(p =>
+        p.id === perguntaId
+          ? {
+              ...p,
+              opcoes: p.opcoes.map((opcao, idx) =>
+                idx === opcaoIndex ? { ...opcao, texto: novoTexto } : opcao
+              ),
+            }
+          : p
+      ),
+    };
+    atualizarEtapas(novaEtapa);
   };
 
+  const salvarAlteracoes = async () => {
+    const etapasInvalidas = etapas.filter(e => e.perguntas.length !== 2);
+    if (etapasInvalidas.length > 0) {
+      alert('⚠️ Todas as etapas devem ter exatamente 2 perguntas antes de salvar.');
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      await Promise.all(
+        etapas.map(async etapa => {
+          if (!etapa._docId) return;
+          const docRef = doc(db, 'etapas', etapa._docId);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { _docId, ...dadosParaSalvar } = etapa;
+          await updateDoc(docRef, dadosParaSalvar);
+        })
+      );
+      alert('Alterações salvas com sucesso!');
+    } catch (err) {
+      alert('Erro ao salvar alterações: ' + err);
+    }
+    setSalvando(false);
+  };
+
+  if (loading) return <p>Carregando etapas...</p>;
+
   return (
-    <div>
+    <div className='AdminPerguntas'>
       <h1>Administração de Perguntas</h1>
 
       {etapas.map(etapa => (
@@ -95,52 +163,50 @@ const AdminPerguntas: React.FC = () => {
           <h2>{etapa.titulo}</h2>
 
           {etapa.perguntas.map(pergunta => (
-            <article key={pergunta.id}>
+            <div className='perguntas' key={pergunta.id}>
               <input
+                className='form-edit input'
                 type="text"
                 value={pergunta.texto}
-                onChange={e =>
-                  atualizarTextoPergunta(etapa.id, pergunta.id, e.target.value)
-                }
+                onChange={e => atualizarTextoPergunta(etapa, pergunta.id, e.target.value)}
               />
 
               {pergunta.opcoes.map((opcao, idx) => (
                 <div key={idx}>
                   <label>
-                    {idx === 0
-                      ? 'Ótima: '
-                      : idx === 1
-                      ? 'Média: '
-                      : 'Ruim: '}
+                    {idx === 0 ? 'Ótima:' : idx === 1 ? 'Média:' : 'Ruim:'}
                   </label>
                   <input
+                    className='form-edit input'
                     type="text"
                     value={opcao.texto}
                     onChange={e =>
-                      atualizarOpcao(etapa.id, pergunta.id, idx, e.target.value)
+                      atualizarOpcao(etapa, pergunta.id, idx, e.target.value)
                     }
                   />
                 </div>
               ))}
 
-              <button
-                onClick={() => removerPergunta(etapa.id, pergunta.id)}
-              >
+              <button onClick={() => removerPergunta(etapa, pergunta.id)}>
                 Remover Pergunta
               </button>
-            </article>
+            </div>
           ))}
 
-          <button onClick={() => adicionarPergunta(etapa.id)}>
+          <button
+            onClick={() => adicionarPergunta(etapa)}
+            disabled={etapa.perguntas.length >= 2}
+          >
             Adicionar Pergunta
           </button>
         </section>
       ))}
 
-      <div>
-        <button onClick={() => console.log('Salvar mudanças', etapas)}>
-          Salvar Alterações
+      <div className='admin-actions'>
+        <button onClick={salvarAlteracoes} disabled={salvando}>
+          {salvando ? 'Salvando...' : 'Salvar Alterações'}
         </button>
+        <button onClick={onClose}>Voltar</button>
       </div>
     </div>
   );
