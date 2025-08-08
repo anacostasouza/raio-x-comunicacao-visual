@@ -6,7 +6,6 @@ import {
   calcularPontuacaoPorEtapa,
   gerarResumoTexto,
   enviarWhatsApp,
-  baixarPDF,
 } from '../utils/resultUtils';
 import { salvarDiagnostico } from '../services/firebaseService';
 import '../styles/result.css';
@@ -20,7 +19,6 @@ interface ResultProps {
 const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
   const [status, setStatus] = useState<string>('');
   const [resumo, setResumo] = useState<string[]>([]);
-  // agora pontuacoes é um Map<etapaId, estrelas>
   const [pontuacoes, setPontuacoes] = useState<Map<number, number>>(new Map());
   const [etapasUnicas, setEtapasUnicas] = useState<number[]>([]);
 
@@ -37,21 +35,27 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
 
   // Calcula pontuação, resumo e etapas únicas sempre que respostas mudarem
   useEffect(() => {
-    try {
-      const etapas = Array.from(new Set(respostas.map(r => Number(r.etapa)))).sort((a, b) => a - b);
-      setEtapasUnicas(etapas);
+    const processarResumo = async () => {
+      try {
+        const etapas = Array.from(new Set(respostas.map(r => Number(r.etapa)))).sort((a, b) => a - b);
+        setEtapasUnicas(etapas);
 
-      const resumoTexto = gerarResumoTexto(respostas);
-      setResumo(resumoTexto.split('\n\n'));
+        const resumoTexto = await gerarResumoTexto(respostas);
+        console.log('📝 Resumo texto gerado:', resumoTexto);
 
-      const mapaPontuacoes = calcularPontuacaoPorEtapa(respostas); // retorna Map<number, number>
-      setPontuacoes(mapaPontuacoes);
-    } catch (err) {
-      console.error('Erro ao calcular resumo/pontuações:', err);
-      setResumo([]);
-      setPontuacoes(new Map());
-      setEtapasUnicas([]);
-    }
+        setResumo(resumoTexto.split('\n\n'));
+
+        const mapaPontuacoes = calcularPontuacaoPorEtapa(respostas);
+        setPontuacoes(mapaPontuacoes);
+      } catch (err) {
+        console.error('Erro ao calcular resumo/pontuações:', err);
+        setResumo([]);
+        setPontuacoes(new Map());
+        setEtapasUnicas([]);
+      }
+    };
+
+    processarResumo();
   }, [respostas]);
 
   const handleEnviarWhatsApp = async () => {
@@ -76,20 +80,6 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
     }
   };
 
-  const handlePDF = async () => {
-    if (!cliente) {
-      alert('Cliente não encontrado! Não é possível gerar o PDF.');
-      return;
-    }
-
-    try {
-      await baixarPDF(respostas, cliente);
-    } catch (err) {
-      console.error('Erro ao gerar PDF:', err);
-      alert('Erro ao gerar PDF. Verifique o console para detalhes.');
-    }
-  };
-
   return (
     <div className="ResultContainer">
       <h2 id="title">Diagnóstico concluído!</h2>
@@ -100,7 +90,6 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
         ) : (
           etapasUnicas.map((etapaId, index) => {
             const estrelas = pontuacoes.get(etapaId) ?? 0;
-            // resumo: usamos índice +1 por causa do split de gerarResumoTexto (estrutura atual)
             const textoEtapa = resumo[index + 1] ?? '';
             const paragrafo = textoEtapa.split('\n').slice(2).join(' ');
 
@@ -121,10 +110,6 @@ const Result: React.FC<ResultProps> = ({ respostas, onRestart, cliente }) => {
       <div className="actions">
         <button className="primary-button" onClick={handleEnviarWhatsApp}>
           Enviar Resultado pelo WhatsApp
-        </button>
-
-        <button className="primary-button" onClick={handlePDF}>
-          Baixar PDF do Diagnóstico
         </button>
 
         <button className="primary-button" onClick={onRestart}>
@@ -148,16 +133,13 @@ function starsSafe(n: number) {
 }
 
 /**
- * Caso a lógica externa retorne valores fora do esperado, normaliza rapidamente.
- * Se já estiver em 1..5 retorna, se for 0..2 (media) tenta mapear para 1..5.
+ * Normaliza valores para o intervalo 1..5, convertendo médias se necessário
  */
 function starsSafeNormalize(v: number) {
   if (!Number.isFinite(v)) return 0;
   if (v >= 1 && v <= 5) return v;
-  // se v estiver no intervalo 0..2 (média raw), converte para 1..5 (mesma fórmula do utils)
   if (v >= 0 && v <= 2) {
     return Math.round((v / 2) * 4 + 1);
   }
-  // fallback
   return Math.round(v);
 }

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
-import { baixarPDF, enviarWhatsApp } from '../utils/resultUtils';
+import { enviarWhatsApp } from '../utils/resultUtils';
 import type { Cliente } from '../types/Cliente';
 import type { Resposta } from '../types/Resposta';
 import '../styles/admindiagnosticos.css';
@@ -34,11 +34,6 @@ const AdminDiagnosticos: React.FC = () => {
     fetchDiagnosticos();
   }, []);
 
-  const handleBaixarPDF = (respostas: Resposta[], cliente: Cliente) => {
-    // Agora passamos o array de Resposta e o objeto Cliente
-    baixarPDF(respostas, cliente);
-  };
-
   const handleReenviarWhatsApp = async (respostas: Resposta[], cliente: Cliente) => {
     try {
       await enviarWhatsApp(respostas, cliente);
@@ -61,7 +56,6 @@ const AdminDiagnosticos: React.FC = () => {
           <h3>{d.cliente?.nome ?? 'Sem nome'}</h3>
           <p>Telefone: {d.cliente?.telefone ?? '—'}</p>
           <div className="diagnostico-acoes">
-            <button onClick={() => handleBaixarPDF(d.respostas, d.cliente)}>Baixar PDF</button>
             <button onClick={() => handleReenviarWhatsApp(d.respostas, d.cliente)}>Reenviar WhatsApp</button>
           </div>
         </div>

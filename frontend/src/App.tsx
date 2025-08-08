@@ -6,9 +6,12 @@ import Result from './components/Result';
 import AdminPerguntasFirestore from './components/AdminPerguntas';
 import AdminDiagnosticos from './components/AdminDiagnosticos';
 import AdminLogin from './components/AdminLogin';
+import SugestoesPorEtapa from './components/SugestoesPorEtapaComp';
+
+
 
 import { auth } from './services/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 import type { Cliente } from './types/Cliente';
 import type { Resposta } from './types/Resposta';
@@ -17,8 +20,9 @@ const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 function App() {
   const [fase, setFase] = useState<
-    'welcome' | 'cadastro' | 'quiz' | 'result' | 'admin' | 'login' | 'diagnosticos'
-  >('welcome');
+      'welcome' | 'cadastro' | 'quiz' | 'result' | 'admin' | 'login' | 'diagnosticos' | 'sugestoes'
+    >('welcome');
+
 
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [respostas, setRespostas] = useState<Resposta[]>([]);
@@ -38,17 +42,12 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const abrirAdmin = (destino: 'admin' | 'diagnosticos' = 'admin') => {
+  const abrirAdmin = (destino: 'admin' | 'diagnosticos' | 'sugestoes' = 'admin') => {
     if (isAdmin) {
       setFase(destino);
     } else {
       setFase('login');
     }
-  };
-
-  const sair = async () => {
-    await signOut(auth);
-    setFase('welcome');
   };
 
   return (
@@ -94,8 +93,8 @@ function App() {
         <div>
           <AdminPerguntasFirestore onClose={() => setFase('welcome')} />
             <div className='logout-container'>
-              <button className="logout-button" onClick={sair}>
-                Desconectar
+              <button className="logout-button" onClick={() => setFase('welcome')}>
+                Voltar para o Início
               </button>
           </div>
         </div>
@@ -111,6 +110,18 @@ function App() {
           </div>
         </div>
       )}
+
+      {fase === 'sugestoes' && userEmail && isAdmin && (
+        <div>
+          <SugestoesPorEtapa onClose={() => setFase('admin')} />
+          <div className='logout-container'>
+            <button className="primary-button" onClick={() => setFase('welcome')}>
+              Voltar para o inicio
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

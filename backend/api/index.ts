@@ -107,6 +107,36 @@ app.post("/proxy/mensagens", async (req, res) => {
   }
 });
 
+// Enviar Fluxo BotConversa
+
+app.post("/proxy/fluxo", async (req, res) => {
+  try {
+    const telefone = req.body.telefone;
+    const fluxoId = 7522480;
+    if (!telefone || !fluxoId) {
+      return res.status(400).json({ error: "Telefone e fluxoId são obrigatórios" });
+    }
+    const resGet = await fetch(`${API_BASE}/subscriber/get_by_phone/${telefone}/`, {
+      headers: { "accept": "application/json", "Api-Key": API_KEY! },
+    });
+    const subscriber = await resGet.json();
+    const subscriberId = subscriber.id;
+    if (!subscriberId) {
+      return res.status(404).json({ error: "Subscriber não encontrado" });
+    }
+    const resFluxo = await fetch(`${API_BASE}/subscriber/${subscriberId}/send_flow/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Api-Key": API_KEY! },
+      body: JSON.stringify({ flow_id: fluxoId }),
+    });
+    const dataFluxo = await resFluxo.json();
+    return res.json(dataFluxo);
+  } catch (err) {
+    console.error("Erro ao iniciar fluxo:", err);
+    return res.status(500).json({ error: "Erro ao iniciar fluxo" });
+  }
+});
+
 // 🔥 Export para Vercel
 export default function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");

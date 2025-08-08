@@ -1,12 +1,18 @@
 import React from 'react';
 import logo from '../assets/logo.png';
 import '../styles/welcome.css';
+import { auth } from '../services/firebase';
+import { signOut } from 'firebase/auth';
 
 interface Props {
   onStart: () => void;
-  onAdminOpen?: (destino?: 'diagnosticos' | 'admin') => void;
+  onAdminOpen?: (destino: 'admin' | 'diagnosticos' | 'sugestoes')=> void;
   showAdmin?: boolean; 
 }
+
+const sair = async () => {
+    await signOut(auth);
+};
 
 const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
   return (
@@ -34,6 +40,18 @@ const Welcome: React.FC<Props> = ({ onStart, onAdminOpen, showAdmin }) => {
                 onClick={() => onAdminOpen('admin')}
               >
                 Administrar Perguntas
+              </button>
+              <button
+                className="primary-button"
+                onClick={() => onAdminOpen?.('sugestoes')}
+              >
+                Sugestões por Etapa
+              </button>
+              <button
+                className='logout-button'
+                onClick={(sair)}
+              >
+                Sair
               </button>
             </>
           ) : (

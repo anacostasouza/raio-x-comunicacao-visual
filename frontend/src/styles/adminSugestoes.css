@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;700&display=swap');
+
+:root {
+  --primary-color: #8a2a2c;
+  --primary-hover-color: #681c1d;
+  --bg-color: #f9f9f9;
+  --card-bg: #ffffff;
+  --text-dark: #212529;
+  --text-muted: #6c757d;
+  --border-radius: 12px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --transition: 0.3s ease;
+}
+
+body {
+  font-family: 'Comfortaa', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+}
+
+.admin-perguntas-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.admin-perguntas-container h2 {
+  text-align: center;
+  font-size: 2.3rem;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+}
+
+.etapa-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.etapa-section h3 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.sugestao-item {
+  margin-bottom: 1rem;
+}
+
+.sugestao-item strong {
+  display: inline-block;
+  width: 160px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.sugestao-texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem;
+  transition: color var(--transition);
+}
+
+.icon-button:hover {
+  color: #ffffff;
+}
+
+.sugestao-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.5rem 0 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color var(--transition);
+}
+
+.sugestao-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+button:hover {
+  background-color: var(--primary-hover-color);
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  display: block;
+  margin: 1rem auto 0;
+}
+
+@media screen and (max-width: 768px) {
+  .admin-perguntas-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .sugestao-textarea {
+    font-size: 0.9rem;
+  }
+
+  .admin-perguntas-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .etapa-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .sugestao-item strong {
+    width: 140px;
+  }
+}

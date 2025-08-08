@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import type { Etapa } from '../types/Etapas';
-import type { Pergunta } from '../types/Pergunta';
 import { db } from '../services/firebase';
 import {
   collection,
@@ -10,16 +10,20 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore';
+import { FaPencilAlt, FaCheck, FaTimes } from 'react-icons/fa';
 import '../styles/adminPerguntas.css';
 
 interface Props {
-  onClose: () => void;
+  onClose?: () => void;
 }
 
-const AdminPerguntas: React.FC<Props> = ({ onClose }) => {
+const AdminPerguntas: React.FC<Props> = () => {
   const [etapas, setEtapas] = useState<(Etapa & { _docId?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
+
+  const [editandoEtapaId, setEditandoEtapaId] = useState<number | null>(null);
+  const [etapaTemp, setEtapaTemp] = useState<Etapa & { _docId?: string } | null>(null);
 
   useEffect(() => {
     async function carregarEtapas() {
@@ -51,80 +55,29 @@ const AdminPerguntas: React.FC<Props> = ({ onClose }) => {
     );
   };
 
-  const adicionarPergunta = (etapa: Etapa & { _docId?: string }) => {
-    if (etapa.perguntas.length >= 2) {
-      alert('Cada etapa deve ter exatamente 2 perguntas. Não é possível adicionar mais.');
-      return;
+  const iniciarEdicaoEtapa = (etapa: Etapa & { _docId?: string }) => {
+    setEditandoEtapaId(Number(etapa.id));
+    setEtapaTemp(JSON.parse(JSON.stringify(etapa)));
+  };
+
+  const salvarEtapa = async () => {
+    if (!etapaTemp) return;
+
+    atualizarEtapas(etapaTemp);
+    setEditandoEtapaId(null);
+    setSalvando(true);
+
+    try {
+      if (etapaTemp._docId) {
+        const docRef = doc(db, 'etapas', etapaTemp._docId);
+        const { _docId, ...dadosParaSalvar } = etapaTemp;
+        await updateDoc(docRef, dadosParaSalvar);
+        alert('Etapa salva com sucesso!');
+      }
+    } catch (err) {
+      alert('Erro ao salvar etapa: ' + err);
     }
-
-    const novoId = etapa.perguntas.length
-      ? Math.max(...etapa.perguntas.map(p => p.id)) + 1
-      : 1;
-
-    const novaPergunta: Pergunta = {
-      id: novoId,
-      texto: 'Nova pergunta...',
-      opcoes: [
-        { texto: 'Resposta ótima', valor: 2 },
-        { texto: 'Resposta média', valor: 1 },
-        { texto: 'Resposta ruim', valor: 0 },
-      ],
-    };
-
-    atualizarEtapas({
-      ...etapa,
-      perguntas: [...etapa.perguntas, novaPergunta],
-    });
-  };
-
-  const removerPergunta = (etapa: Etapa & { _docId?: string }, perguntaId: number) => {
-    if (etapa.perguntas.length <= 2) {
-      alert('Cada etapa deve ter exatamente 2 perguntas.');
-      return;
-    }
-
-    const novaEtapa = {
-      ...etapa,
-      perguntas: etapa.perguntas.filter(p => p.id !== perguntaId),
-    };
-
-    atualizarEtapas(novaEtapa);
-  };
-
-  const atualizarTextoPergunta = (
-    etapa: Etapa & { _docId?: string },
-    perguntaId: number,
-    novoTexto: string
-  ) => {
-    const novaEtapa = {
-      ...etapa,
-      perguntas: etapa.perguntas.map(p =>
-        p.id === perguntaId ? { ...p, texto: novoTexto } : p
-      ),
-    };
-    atualizarEtapas(novaEtapa);
-  };
-
-  const atualizarOpcao = (
-    etapa: Etapa & { _docId?: string },
-    perguntaId: number,
-    opcaoIndex: number,
-    novoTexto: string
-  ) => {
-    const novaEtapa = {
-      ...etapa,
-      perguntas: etapa.perguntas.map(p =>
-        p.id === perguntaId
-          ? {
-              ...p,
-              opcoes: p.opcoes.map((opcao, idx) =>
-                idx === opcaoIndex ? { ...opcao, texto: novoTexto } : opcao
-              ),
-            }
-          : p
-      ),
-    };
-    atualizarEtapas(novaEtapa);
+    setSalvando(false);
   };
 
   const salvarAlteracoes = async () => {
@@ -140,12 +93,12 @@ const AdminPerguntas: React.FC<Props> = ({ onClose }) => {
         etapas.map(async etapa => {
           if (!etapa._docId) return;
           const docRef = doc(db, 'etapas', etapa._docId);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { _docId, ...dadosParaSalvar } = etapa;
           await updateDoc(docRef, dadosParaSalvar);
         })
       );
       alert('Alterações salvas com sucesso!');
+      // Não tem redirecionamento aqui
     } catch (err) {
       alert('Erro ao salvar alterações: ' + err);
     }
@@ -158,55 +111,89 @@ const AdminPerguntas: React.FC<Props> = ({ onClose }) => {
     <div className='AdminPerguntas'>
       <h1>Administração de Perguntas</h1>
 
-      {etapas.map(etapa => (
-        <section key={etapa.id}>
-          <h2>{etapa.titulo}</h2>
+      {etapas.map(etapa => {
+        const emEdicao = editandoEtapaId === Number(etapa.id);
+        const dados = emEdicao ? etapaTemp! : etapa;
 
-          {etapa.perguntas.map(pergunta => (
-            <div className='perguntas' key={pergunta.id}>
-              <input
-                className='form-edit input'
-                type="text"
-                value={pergunta.texto}
-                onChange={e => atualizarTextoPergunta(etapa, pergunta.id, e.target.value)}
-              />
+        return (
+          <section key={etapa.id}>
+            <div className="view-row">
+              {emEdicao ? (
+                <input
+                  value={dados.titulo}
+                  onChange={e =>
+                    setEtapaTemp({ ...dados, titulo: e.target.value })
+                  }
+                  disabled={salvando}
+                />
+              ) : (
+                <span className="titulo-etapa">{etapa.titulo}</span>
+              )}
 
-              {pergunta.opcoes.map((opcao, idx) => (
-                <div key={idx}>
-                  <label>
-                    {idx === 0 ? 'Ótima:' : idx === 1 ? 'Média:' : 'Ruim:'}
-                  </label>
-                  <input
-                    className='form-edit input'
-                    type="text"
-                    value={opcao.texto}
-                    onChange={e =>
-                      atualizarOpcao(etapa, pergunta.id, idx, e.target.value)
-                    }
-                  />
-                </div>
-              ))}
-
-              <button onClick={() => removerPergunta(etapa, pergunta.id)}>
-                Remover Pergunta
-              </button>
+              {!emEdicao && (
+                <button onClick={() => iniciarEdicaoEtapa(etapa)}>
+                  <FaPencilAlt />
+                </button>
+              )}
             </div>
-          ))}
 
-          <button
-            onClick={() => adicionarPergunta(etapa)}
-            disabled={etapa.perguntas.length >= 2}
-          >
-            Adicionar Pergunta
-          </button>
-        </section>
-      ))}
+            {dados.perguntas.map((pergunta, pIndex) => (
+              <div className='perguntas' key={pergunta.id}>
+                {emEdicao ? (
+                  <input
+                    value={pergunta.texto}
+                    onChange={e => {
+                      const novasPerguntas = [...dados.perguntas];
+                      novasPerguntas[pIndex] = {
+                        ...pergunta,
+                        texto: e.target.value,
+                      };
+                      setEtapaTemp({ ...dados, perguntas: novasPerguntas });
+                    }}
+                    disabled={salvando}
+                  />
+                ) : (
+                  <span className='perguntas-titulo'>{pergunta.texto}</span>
+                )}
+
+                {pergunta.opcoes.map((opcao, idx) => (
+                  <div key={idx} className="view-row">
+                    <label>{idx === 0 ? 'Ótima:' : idx === 1 ? 'Média:' : 'Ruim:'}</label>
+                    {emEdicao ? (
+                      <input
+                        value={opcao.texto}
+                        onChange={e => {
+                          const novasPerguntas = [...dados.perguntas];
+                          novasPerguntas[pIndex].opcoes[idx] = {
+                            ...opcao,
+                            texto: e.target.value,
+                          };
+                          setEtapaTemp({ ...dados, perguntas: novasPerguntas });
+                        }}
+                        disabled={salvando}
+                      />
+                    ) : (
+                      <span>{opcao.texto}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {emEdicao && (
+              <div className="edit-actions">
+                <button onClick={salvarEtapa} disabled={salvando}><FaCheck /></button>
+                <button onClick={() => setEditandoEtapaId(null)} disabled={salvando}><FaTimes /></button>
+              </div>
+            )}
+          </section>
+        );
+      })}
 
       <div className='admin-actions'>
         <button onClick={salvarAlteracoes} disabled={salvando}>
           {salvando ? 'Salvando...' : 'Salvar Alterações'}
         </button>
-        <button onClick={onClose}>Voltar</button>
       </div>
     </div>
   );
